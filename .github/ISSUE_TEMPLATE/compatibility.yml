@@ -1,0 +1,38 @@
+name: Compatibilité Codex ou navigateur
+description: Signaler une incompatibilité sans exposer de donnée de compte.
+title: "fix(compat): "
+labels: ["compatibility"]
+body:
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface concernée
+      options:
+        [Codex CLI, Application Codex, Extension IDE, Navigateur, Vercel, PostgreSQL Neon, Autre]
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions exactes
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact utilisateur
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction avec données factices
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Confidentialité
+      options:
+        - label: J'ai retiré tous les identifiants, secrets et chemins locaux personnels.
+          required: true

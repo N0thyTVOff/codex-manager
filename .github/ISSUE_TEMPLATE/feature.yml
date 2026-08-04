@@ -1,0 +1,59 @@
+name: Proposer une fonctionnalité
+description: Expliquer un besoin utilisateur sans supposer sa solution.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Besoin utilisateur
+      description: Quel problème concret faut-il résoudre ?
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Fonctionnement actuel
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Solution envisagée
+  - type: input
+    id: users
+    attributes:
+      label: Utilisateurs concernés
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Partie du projet
+      options:
+        [Coffre, Authentification, Interface, Base de données, Documentation, CI et releases, Autre]
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Contraintes
+      description: Sécurité, accessibilité, compatibilité, performances ou confidentialité.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Critères d'acceptation
+      placeholder: "- [ ] …"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considérées
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérification des doublons
+      options:
+        - label: J'ai recherché les propositions existantes.
+          required: true

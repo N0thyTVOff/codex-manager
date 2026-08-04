@@ -1,0 +1,55 @@
+{
+  "name": "codex-manager",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Coffre personnel chiffré pour organiser ses comptes ChatGPT Plus utilisés avec Codex.",
+  "license": "AGPL-3.0-only",
+  "engines": {
+    "node": ">=22.21.0 <23",
+    "npm": ">=10.9.0 <11"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "db:generate": "drizzle-kit generate",
+    "db:check": "drizzle-kit check",
+    "audit:prod": "npm audit --omit=dev --audit-level=high",
+    "check:yaml": "node scripts/check-yaml.mjs",
+    "check:links": "node scripts/check-markdown-links.mjs",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test:coverage && npm run db:check && npm run check:yaml && npm run check:links && npm run build"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "1.1.0",
+    "better-auth": "1.6.25",
+    "drizzle-orm": "0.45.2",
+    "next": "16.3.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@types/node": "22.19.7",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "@vitest/coverage-v8": "4.1.10",
+    "drizzle-kit": "0.31.10",
+    "eslint": "9.39.2",
+    "eslint-config-next": "16.3.0",
+    "jsdom": "29.1.1",
+    "prettier": "3.9.6",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10",
+    "yaml": "2.8.1"
+  }
+}

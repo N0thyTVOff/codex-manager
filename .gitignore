@@ -1,0 +1,50 @@
+# Dépendances
+node_modules/
+
+# Next.js et builds
+.next/
+out/
+dist/
+coverage/
+
+# Variables d'environnement : seul l'exemple public est versionné
+.env
+.env.*
+!.env.example
+
+# Vercel
+.vercel/
+
+# Journaux, caches et fichiers temporaires
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+.eslintcache
+.npm/
+*.tsbuildinfo
+
+# IDE et système
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Archives, certificats et clés
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Bases locales
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3

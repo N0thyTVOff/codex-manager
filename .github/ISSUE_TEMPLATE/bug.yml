@@ -1,0 +1,69 @@
+name: Signaler un bug
+description: Décrire un comportement reproductible de Codex Manager.
+title: "fix: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: "Merci de ne publier aucun mot de passe, secret 2FA, token, donnée personnelle ou contenu de coffre."
+  - type: textarea
+    id: observed
+    attributes:
+      label: Problème observé
+      description: Que s'est-il passé ? Utilisez uniquement des données factices.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Résultat attendu
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Étapes de reproduction
+      placeholder: "1. Ouvrir…\n2. Sélectionner…\n3. Constater…"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: v0.1.0 ou commit
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environnement
+      description: Appareil, système, navigateur et versions utiles.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Journaux ou diagnostic assainis
+      description: Retirez intégralement les secrets, identifiants et données personnelles.
+      render: shell
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Captures assainies
+      description: Vérifiez chaque pixel avant l'envoi. Préférez une reproduction avec données factices.
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Fréquence
+      options: [Toujours, Souvent, Parfois, Une seule fois]
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérifications
+      options:
+        - label: J'ai recherché les issues existantes et ce problème n'est pas un doublon.
+          required: true
+        - label: Ce rapport ne contient aucun secret ni donnée personnelle réelle.
+          required: true
