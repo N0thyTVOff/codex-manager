@@ -22,7 +22,6 @@ jobs:
       release_sha: ${{ steps.release.outputs.sha }}
       release_tag: ${{ steps.release.outputs.tag_name }}
     permissions:
-      actions: write
       contents: write
       issues: write
       pull-requests: write
@@ -35,17 +34,6 @@ jobs:
           token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-
-      - name: Attacher la CI au commit de la Release PR
-        if: steps.release.outputs.prs_created == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_PR: ${{ steps.release.outputs.pr }}
-        run: |
-          # Les PR créées avec GITHUB_TOKEN ne déclenchent pas pull_request. GitHub autorise
-          # toutefois workflow_dispatch : ce run fournit donc le check CI requis au même commit.
-          release_branch="$(node -e "const pr = JSON.parse(process.env.RELEASE_PR); if (!pr.headBranchName?.startsWith('release-please--')) process.exit(1); process.stdout.write(pr.headBranchName)")"
-          gh workflow run ci.yml --ref "$release_branch"
 
   production:
     name: Publier la release validée

@@ -66,9 +66,9 @@ limité à `N0thyTVOff/codex-manager`, avec `Contents`, `Issues` et `Pull reques
 écriture. Donnez-lui une expiration et planifiez sa rotation. Cette solution évite d'activer
 l'autorisation globale combinée permettant aux workflows de créer et d'approuver des PR.
 
-Comme la Release PR créée par ce jeton ne doit dépendre d'aucun événement implicite, le workflow
-Release Please lance explicitement `CI` par `workflow_dispatch` sur sa branche avec le
-`GITHUB_TOKEN` éphémère. La permission `actions: write` reste limitée à ce job.
+La Release PR créée avec ce jeton déclenche normalement sa CI. Le workflow `CI` conserve aussi
+`workflow_dispatch` afin de pouvoir attacher manuellement le check à la branche Release Please si
+GitHub ne l'a pas lancé automatiquement.
 
 Ajoutez dans l'environnement Production de Vercel les variables applicatives du tableau précédent.
 Les previews sont désactivées. Release Please appelle `.github/workflows/production.yml` uniquement
