@@ -61,10 +61,14 @@ Ajoutez manuellement dans l'environnement GitHub `production` :
 - le secret `VERCEL_TOKEN` ;
 - les variables non secrètes `VERCEL_ORG_ID` et `VERCEL_PROJECT_ID`.
 
-Release Please utilise le `GITHUB_TOKEN` éphémère fourni par GitHub. Aucun jeton personnel durable
-n'est nécessaire. Comme une PR créée par ce jeton ne déclenche pas elle-même les workflows de PR,
-le workflow Release Please lance explicitement `CI` par `workflow_dispatch` sur sa branche. La
-permission `actions: write` reste limitée à ce job.
+Ajoutez au niveau du dépôt le secret `RELEASE_PLEASE_TOKEN` : un fine-grained personal access token
+limité à `N0thyTVOff/codex-manager`, avec `Contents`, `Issues` et `Pull requests` en lecture et
+écriture. Donnez-lui une expiration et planifiez sa rotation. Cette solution évite d'activer
+l'autorisation globale combinée permettant aux workflows de créer et d'approuver des PR.
+
+Comme la Release PR créée par ce jeton ne doit dépendre d'aucun événement implicite, le workflow
+Release Please lance explicitement `CI` par `workflow_dispatch` sur sa branche avec le
+`GITHUB_TOKEN` éphémère. La permission `actions: write` reste limitée à ce job.
 
 Ajoutez dans l'environnement Production de Vercel les variables applicatives du tableau précédent.
 Les previews sont désactivées. Release Please appelle `.github/workflows/production.yml` uniquement
