@@ -12,6 +12,21 @@ on:
         description: Tag créé par Release Please.
         required: true
         type: string
+    secrets:
+      VERCEL_TOKEN:
+        description: Jeton Vercel transmis explicitement par le workflow appelant.
+        required: true
+  # Chemin de reprise contrôlé si le déploiement d'une release existante échoue.
+  workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Commit immuable associé à la GitHub Release existante.
+        required: true
+        type: string
+      release_tag:
+        description: Tag d'une GitHub Release existante.
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -30,11 +45,14 @@ jobs:
         with:
           ref: ${{ inputs.release_tag }}
       - uses: ./.github/actions/setup
-      - name: Vérifier la correspondance entre le tag et le commit
+      - name: Vérifier la release, le tag et le commit
         env:
+          GH_TOKEN: ${{ github.token }}
           RELEASE_SHA: ${{ inputs.release_sha }}
           RELEASE_TAG: ${{ inputs.release_tag }}
-        run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+        run: |
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
       - run: npm run check
       - run: npm run audit:prod
 

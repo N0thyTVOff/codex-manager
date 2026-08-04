@@ -33,6 +33,11 @@ Une migration de production doit être additive ou rester compatible avec la ver
 ligne : si le déploiement échoue après la migration, l'ancienne application doit continuer à
 fonctionner.
 
+Si une production échoue après la création de la GitHub Release, le workflow
+`Validation de release et production` peut être relancé manuellement avec le tag publié et son SHA.
+Il refuse un tag sans GitHub Release correspondante et rejoue toutes les validations avant toute
+migration ou promotion Vercel.
+
 ## Chiffrement
 
 Toute modification de format doit :
