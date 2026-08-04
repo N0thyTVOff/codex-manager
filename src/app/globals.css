@@ -267,6 +267,32 @@ footer {
   color: var(--muted);
   font-size: 13px;
 }
+.vault-shell {
+  min-height: 100vh;
+}
+.vault-placeholder {
+  max-width: 780px;
+  padding: clamp(90px, 14vw, 180px) 0;
+}
+.vault-placeholder h1 {
+  margin: 18px 0 24px;
+  font-size: clamp(42px, 7vw, 76px);
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+.vault-placeholder > p:not(.eyebrow) {
+  max-width: 650px;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.65;
+}
+.secondary-link {
+  display: inline-flex;
+  margin-top: 28px;
+  color: var(--lime);
+  font-weight: 700;
+  text-underline-offset: 5px;
+}
 @media (max-width: 820px) {
   main {
     width: min(100% - 28px, 680px);

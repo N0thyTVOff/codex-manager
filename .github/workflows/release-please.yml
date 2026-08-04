@@ -13,16 +13,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release-please:
+  release_please:
     name: Maintenir la Release PR groupée
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      release_sha: ${{ steps.release.outputs.sha }}
+      release_tag: ${{ steps.release.outputs.tag_name }}
     permissions:
       contents: write
+      issues: write
       pull-requests: write
     steps:
-      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+      - id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Un jeton finement limité permet de garder désactivée l'approbation de PR par GITHUB_TOKEN.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  production:
+    name: Publier la release validée
+    needs: release_please
+    if: needs.release_please.outputs.release_created == 'true'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/production.yml
+    with:
+      release_sha: ${{ needs.release_please.outputs.release_sha }}
+      release_tag: ${{ needs.release_please.outputs.release_tag }}

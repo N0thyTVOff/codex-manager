@@ -22,6 +22,7 @@
     "test:coverage": "vitest run --coverage",
     "db:generate": "drizzle-kit generate",
     "db:check": "drizzle-kit check",
+    "db:migrate": "drizzle-kit migrate",
     "audit:prod": "npm audit --omit=dev --audit-level=high",
     "check:yaml": "node scripts/check-yaml.mjs",
     "check:links": "node scripts/check-markdown-links.mjs",

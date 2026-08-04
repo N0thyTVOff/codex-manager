@@ -37,33 +37,39 @@ du coffre dans une variable d'environnement : elle doit rester uniquement dans l
 
 Créez une application OAuth sous votre compte GitHub avec le callback local
 `http://localhost:3000/api/auth/callback/github`. Pour la production, utilisez le domaine HTTPS
-stable suivi de `/api/auth/callback/github`. Enregistrez le secret directement dans Vercel, jamais
-dans le dépôt ou une discussion.
+`https://codex-manager-nine.vercel.app/api/auth/callback/github`. GitHub OAuth n'accepte qu'un
+callback principal par application : utilisez deux applications distinctes et enregistrez leurs
+secrets directement dans `.env.local` et Vercel, jamais dans le dépôt ou une discussion.
 
 ## Base de données
 
-Après configuration de `DATABASE_URL` :
+Après une modification du schéma :
 
 ```bash
 npm run db:generate
 ```
 
-Relisez la migration générée. Son application à une base hébergée relève d'une opération séparée
-et n'est jamais exécutée par la CI. Les tests et le build ne contactent aucune base distante.
+Relisez la migration générée. La CI vérifie les migrations hors ligne sans contacter Neon. Après
+fusion manuelle d'une Release PR, le workflow de production applique les migrations versionnées
+avant de déployer ; elles doivent donc rester additives ou rétrocompatibles.
 
 ## Vercel
 
-Le projet n'est pas connecté pour un déploiement automatique de `main`. Ajoutez manuellement dans
-l'environnement GitHub `production` :
+Le projet `n0thy/codex-manager` n'est pas connecté pour un déploiement automatique de `main`.
+Ajoutez manuellement dans l'environnement GitHub `production` :
 
-- `VERCEL_TOKEN` ;
-- `VERCEL_ORG_ID` ;
-- `VERCEL_PROJECT_ID`.
+- le secret `VERCEL_TOKEN` ;
+- les variables non secrètes `VERCEL_ORG_ID` et `VERCEL_PROJECT_ID`.
+
+Ajoutez aussi au niveau du dépôt le secret `RELEASE_PLEASE_TOKEN` : un fine-grained personal access
+token limité à `N0thyTVOff/codex-manager`, avec `Contents`, `Issues` et `Pull requests` en lecture et
+écriture. Cette solution garde désactivée l'autorisation globale permettant aux workflows
+d'approuver des PR. Donnez-lui une expiration et planifiez sa rotation.
 
 Ajoutez dans l'environnement Production de Vercel les variables applicatives du tableau précédent.
-Les previews peuvent être configurées plus tard, sans secrets de production et après approbation
-des workflows provenant de forks. Le workflow `.github/workflows/production.yml` ne s'exécute que
-sur une GitHub Release publiée.
+Les previews sont désactivées. Release Please appelle `.github/workflows/production.yml` uniquement
+après avoir créé une GitHub Release réelle. Le workflow construit, migre, déploie sans alias,
+contrôle `/api/health`, puis promeut le déploiement validé.
 
 ## Validation
 

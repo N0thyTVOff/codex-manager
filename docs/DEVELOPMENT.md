@@ -25,8 +25,13 @@ donnée issue d'un compte réel.
 ## Schéma
 
 Modifiez `src/db/schema.ts`, exécutez `npm run db:generate`, relisez le SQL, puis validez avec
-`npm run db:check`. N'appliquez jamais une migration de production depuis un poste ou la CI sans
-procédure et autorisation distinctes.
+`npm run db:check`. La fusion manuelle de la Release PR autorise le workflow protégé à appliquer
+les migrations versionnées. Ne lancez jamais `npm run db:migrate` contre la production depuis un
+poste local.
+
+Une migration de production doit être additive ou rester compatible avec la version encore en
+ligne : si le déploiement échoue après la migration, l'ancienne application doit continuer à
+fonctionner.
 
 ## Chiffrement
 
