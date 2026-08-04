@@ -45,3 +45,5 @@ jobs:
     with:
       release_sha: ${{ needs.release_please.outputs.release_sha }}
       release_tag: ${{ needs.release_please.outputs.release_tag }}
+    secrets:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
