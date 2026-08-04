@@ -2,5 +2,5 @@
 
 Les changements notables de Codex Manager seront documentés ici par Release Please.
 
-La version courante du socle est `0.1.0`. Aucune GitHub Release n'est créée tant que la Release
-PR groupée n'est pas fusionnée manuellement par le mainteneur.
+La première version prévue est `0.1.0`. Aucune GitHub Release n'est créée tant que la Release PR
+groupée n'est pas fusionnée manuellement par le mainteneur.

@@ -1,9 +1,17 @@
 name: Validation de release et production
 
-# Aucune branche ne déploie directement : seule une GitHub Release réellement publiée déclenche ce flux.
+# Ce workflow est appelé uniquement après que Release Please a réellement créé la GitHub Release.
 on:
-  release:
-    types: [published]
+  workflow_call:
+    inputs:
+      release_sha:
+        description: Commit immuable associé à la GitHub Release.
+        required: true
+        type: string
+      release_tag:
+        description: Tag créé par Release Please.
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -20,8 +28,13 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.release_tag }}
       - uses: ./.github/actions/setup
+      - name: Vérifier la correspondance entre le tag et le commit
+        env:
+          RELEASE_SHA: ${{ inputs.release_sha }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
       - run: npm run check
       - run: npm run audit:prod
 
@@ -34,23 +47,46 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ inputs.release_sha }}
       - uses: ./.github/actions/setup
       - name: Récupérer la configuration Vercel Production
         env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: npx --yes vercel@58.5.1 pull --yes --environment=production --token="$VERCEL_TOKEN"
       - name: Construire dans l'environnement Vercel
         env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: npx --yes vercel@58.5.1 build --prod --token="$VERCEL_TOKEN"
-      - name: Publier le build validé
+      - name: Appliquer les migrations versionnées
         env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: npx --yes vercel@58.5.1 deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        run: npx --yes vercel@58.5.1 env run --environment=production --token="$VERCEL_TOKEN" -- npm run db:migrate
+      - name: Créer un déploiement sans l'exposer au domaine
+        id: deploy
+        env:
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          url=$(npx --yes vercel@58.5.1 deploy --prebuilt --prod --skip-domain --yes --token="$VERCEL_TOKEN")
+          test -n "$url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: Vérifier le déploiement isolé
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          health=$(curl --fail --silent --show-error --retry 5 --retry-all-errors "$DEPLOYMENT_URL/api/health")
+          HEALTH="$health" node -e 'const value = JSON.parse(process.env.HEALTH); if (value.status !== "ok") process.exit(1)'
+      - name: Promouvoir le déploiement validé
+        env:
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: npx --yes vercel@58.5.1 promote "$DEPLOYMENT_URL" --yes --token="$VERCEL_TOKEN"

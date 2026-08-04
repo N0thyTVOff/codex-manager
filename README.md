@@ -59,14 +59,15 @@ de gestion seront réellement développés. Elles utiliseront exclusivement des 
 
 ## Commandes utiles
 
-| Commande                | Rôle                                                     |
-| ----------------------- | -------------------------------------------------------- |
-| `npm run dev`           | lancer le serveur local                                  |
-| `npm run check`         | format, lint, types, tests, schéma, YAML, liens et build |
-| `npm run test:coverage` | exécuter les tests avec seuils de couverture             |
-| `npm run db:generate`   | générer une migration après modification du schéma       |
-| `npm run audit:prod`    | auditer les dépendances utilisées en production          |
-| `npm run build`         | produire le build reproductible                          |
+| Commande                | Rôle                                                            |
+| ----------------------- | --------------------------------------------------------------- |
+| `npm run dev`           | lancer le serveur local                                         |
+| `npm run check`         | format, lint, types, tests, schéma, YAML, liens et build        |
+| `npm run test:coverage` | exécuter les tests avec seuils de couverture                    |
+| `npm run db:generate`   | générer une migration après modification du schéma              |
+| `npm run db:migrate`    | appliquer les migrations à l'environnement explicitement choisi |
+| `npm run audit:prod`    | auditer les dépendances utilisées en production                 |
+| `npm run build`         | produire le build reproductible                                 |
 
 ## Architecture
 
@@ -93,15 +94,15 @@ secrets. Consultez [CONTRIBUTING.md](CONTRIBUTING.md).
 Chaque changement est fusionné séparément. Release Please maintient ensuite **une seule Release
 PR** `chore(main): release X.Y.Z`, mise à jour au fil des fusions. Tant que le mainteneur ne fusionne
 pas manuellement cette PR, aucun tag, aucune GitHub Release et aucun déploiement de production ne
-sont créés. Sa fusion constitue l'autorisation de publier ; la release déclenche alors les
-validations du tag, puis seulement le job Vercel protégé.
+sont créés. Sa fusion constitue l'autorisation de publier ; Release Please crée alors la release,
+revalide son tag et appelle le job Vercel protégé dans le même flux GitHub Actions.
 
 ## Déploiement
 
-La cible prévue est Vercel avec PostgreSQL Neon. La connexion Git Vercel ne doit pas déployer
-automatiquement `main` en production : le workflow de production est exclusivement déclenché par
-une GitHub Release publiée. Les secrets requis sont listés dans [INSTALLATION.md](INSTALLATION.md),
-sans aucune valeur réelle.
+La cible est `https://codex-manager-nine.vercel.app` avec PostgreSQL Neon en région Francfort. Les
+déploiements Git Vercel sont désactivés. Le workflow crée un déploiement isolé après la GitHub
+Release, vérifie `/api/health`, puis le promeut seulement si ce contrôle réussit. Les paramètres
+requis sont listés dans [INSTALLATION.md](INSTALLATION.md), sans aucune valeur réelle.
 
 ## Sécurité et licence
 
