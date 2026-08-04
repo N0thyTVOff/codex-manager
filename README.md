@@ -99,7 +99,7 @@ revalide son tag et appelle le job Vercel protégé dans le même flux GitHub Ac
 
 ## Déploiement
 
-La cible est `https://codex-manager-nine.vercel.app` avec PostgreSQL Neon en région Francfort. Les
+La cible est `https://codex-manager-n0thy.vercel.app` avec PostgreSQL Neon en région Francfort. Les
 déploiements Git Vercel sont désactivés. Le workflow crée un déploiement isolé après la GitHub
 Release, vérifie `/api/health`, puis le promeut seulement si ce contrôle réussit. Les paramètres
 requis sont listés dans [INSTALLATION.md](INSTALLATION.md), sans aucune valeur réelle.

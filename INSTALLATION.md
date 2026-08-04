@@ -37,7 +37,7 @@ du coffre dans une variable d'environnement : elle doit rester uniquement dans l
 
 Créez une application OAuth sous votre compte GitHub avec le callback local
 `http://localhost:3000/api/auth/callback/github`. Pour la production, utilisez le domaine HTTPS
-`https://codex-manager-nine.vercel.app/api/auth/callback/github`. GitHub OAuth n'accepte qu'un
+`https://codex-manager-n0thy.vercel.app/api/auth/callback/github`. GitHub OAuth n'accepte qu'un
 callback principal par application : utilisez deux applications distinctes et enregistrez leurs
 secrets directement dans `.env.local` et Vercel, jamais dans le dépôt ou une discussion.
 
