@@ -98,8 +98,12 @@ jobs:
       - name: Vérifier le déploiement isolé
         env:
           DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
+          VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          health=$(curl --fail --silent --show-error --retry 5 --retry-all-errors "$DEPLOYMENT_URL/api/health")
+          # `vercel curl` obtient un bypass temporaire pour l'URL technique protégée.
+          health=$(npx --yes vercel@58.5.1 curl /api/health --deployment "$DEPLOYMENT_URL" --silent --show-error --token="$VERCEL_TOKEN")
           HEALTH="$health" node -e 'const value = JSON.parse(process.env.HEALTH); if (value.status !== "ok") process.exit(1)'
       - name: Promouvoir le déploiement validé
         env:
