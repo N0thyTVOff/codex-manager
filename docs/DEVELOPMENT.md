@@ -5,6 +5,10 @@
 Créez une branche depuis `main`, installez avec `npm ci`, puis lancez `npm run dev`. Avant chaque
 PR, exécutez `npm run check` et `npm run audit:prod`.
 
+La version de référence reste Node.js `22.21.1` avec npm `10.9.x` (`.nvmrc`). Le manifeste accepte
+aussi Node.js 24 et npm 11 afin que Dependabot puisse résoudre le verrouillage dans son environnement
+géré, sans modifier le runtime utilisé par la CI ou Vercel.
+
 ## Qualité
 
 Le check agrégateur GitHub nommé exactement `CI` couvre formatage, lint, types, tests avec
