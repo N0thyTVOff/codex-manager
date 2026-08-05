@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { createAuth } from "@/lib/auth/server";
+import { VaultManager } from "@/components/vault-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -22,20 +23,9 @@ export default async function VaultPage() {
           </span>
           <span>Codex Manager</span>
         </Link>
-        <span className="version-pill">socle v0.1.0</span>
+        <span className="version-pill">coffre chiffré</span>
       </header>
-
-      <section className="vault-placeholder" aria-labelledby="vault-title">
-        <p className="eyebrow">Session GitHub validée</p>
-        <h1 id="vault-title">Le coffre est prêt à être construit.</h1>
-        <p>
-          Cette page protégée confirme l&apos;authentification du propriétaire. Les fiches chiffrées
-          arriveront dans la version fonctionnelle suivante.
-        </p>
-        <Link className="secondary-link" href="/">
-          Revenir à l&apos;accueil
-        </Link>
-      </section>
+      <VaultManager />
     </main>
   );
 }

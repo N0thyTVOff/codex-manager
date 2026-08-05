@@ -3,9 +3,11 @@ import { describe, expect, it } from "vitest";
 import type { VaultSecret } from "@/types/vault";
 import {
   createVaultSalt,
+  createVaultVerification,
   decryptVaultPayload,
   deriveVaultKey,
   encryptVaultPayload,
+  verifyVaultKey,
 } from "./crypto";
 
 const secret: VaultSecret = {
@@ -55,5 +57,26 @@ describe("coffre chiffré", () => {
     await expect(
       decryptVaultPayload(key, { ...payload, version: 2 as 1 }, "record-1"),
     ).rejects.toThrow(/Version/u);
+  });
+
+  it("valide localement la phrase correcte et refuse une autre clé", async () => {
+    const salt = createVaultSalt();
+    const key = await deriveVaultKey("phrase secrète correcte suffisamment longue", salt);
+    const otherKey = await deriveVaultKey("phrase secrète incorrecte mais assez longue", salt);
+    const verification = await createVaultVerification(key);
+
+    await expect(verifyVaultKey(key, verification)).resolves.toBe(true);
+    await expect(verifyVaultKey(otherKey, verification)).resolves.toBe(false);
+  });
+
+  it("génère un nouvel IV pour chaque enveloppe de vérification", async () => {
+    const key = await deriveVaultKey(
+      "phrase secrète de test suffisamment longue",
+      createVaultSalt(),
+    );
+    const first = await createVaultVerification(key);
+    const second = await createVaultVerification(key);
+
+    expect(first.iv).not.toBe(second.iv);
   });
 });

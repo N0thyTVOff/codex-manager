@@ -14,9 +14,9 @@
 ## Pourquoi ce projet ?
 
 Codex Manager remplace un bloc-notes contenant des informations sensibles par une application
-structurée, personnelle et auditable. Le dépôt fournit aujourd'hui le socle technique `0.1.0` :
-interface de démarrage, authentification GitHub réservée au propriétaire, schéma PostgreSQL et
-primitives de chiffrement côté navigateur.
+structurée, personnelle et auditable. La version publiée `0.1.0` fournit le socle technique. Le
+développement de la version groupée `0.2.0` ajoute progressivement la persistance chiffrée,
+l'initialisation, le déverrouillage local et la rotation atomique de la phrase secrète.
 
 > [!IMPORTANT]
 > Les écrans de gestion complète des fiches ne sont pas encore disponibles. Le projet ne partage
@@ -28,9 +28,11 @@ primitives de chiffrement côté navigateur.
 
 - le compte GitHub autorisé est contrôlé avec son identifiant numérique immuable ;
 - la phrase secrète du coffre reste dans le navigateur et n'est ni envoyée ni stockée ;
+- la clé dérivée reste uniquement en mémoire et disparaît au rechargement ou au verrouillage ;
 - PBKDF2-SHA-256 dérive une clé AES-256-GCM avec au moins 600 000 itérations ;
 - chaque écriture utilise un IV aléatoire unique et un contexte authentifié ;
 - PostgreSQL reçoit les fiches sous forme chiffrée uniquement ;
+- une rotation conflictuelle est intégralement annulée par PostgreSQL ;
 - Better Auth chiffre les jetons OAuth avant leur stockage ;
 - les workflows n'accèdent jamais à la base de production ni aux secrets des forks.
 
