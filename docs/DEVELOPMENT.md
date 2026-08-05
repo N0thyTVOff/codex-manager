@@ -16,6 +16,11 @@ couverture, cohérence Drizzle, YAML, liens Markdown, build et audit de producti
 Review est ajoutée sur les PR. CodeQL s'exécute séparément sans dupliquer une configuration par
 défaut GitHub.
 
+La CI démarre aussi un PostgreSQL jetable, applique toutes les migrations et exécute
+`npm run test:integration`. Pour reproduire ce contrôle, utilisez uniquement une base locale dont
+le nom contient `test`, puis fournissez sa connexion dans `DATABASE_URL` et `TEST_DATABASE_URL`.
+Le test refuse volontairement toute adresse non locale afin d'écarter Neon et la production.
+
 ## Données de test
 
 Utilisez uniquement les domaines réservés comme `example.test`, des mots de passe explicitement
