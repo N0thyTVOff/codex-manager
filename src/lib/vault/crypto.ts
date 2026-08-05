@@ -3,6 +3,8 @@ import type { EncryptedVaultPayload } from "@/types/vault";
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder(undefined, { fatal: true });
+export const VAULT_VERIFICATION_CONTEXT = "codex-manager:vault-verification:v1";
+const VAULT_VERIFICATION_MARKER = { type: "codex-manager-vault", version: 1 } as const;
 
 function toBase64Url(bytes: Uint8Array): string {
   let binary = "";
@@ -103,4 +105,24 @@ export async function decryptVaultPayload<T>(
   );
 
   return JSON.parse(textDecoder.decode(plaintext)) as T;
+}
+
+export function createVaultVerification(key: CryptoKey): Promise<EncryptedVaultPayload> {
+  return encryptVaultPayload(key, VAULT_VERIFICATION_MARKER, VAULT_VERIFICATION_CONTEXT);
+}
+
+export async function verifyVaultKey(
+  key: CryptoKey,
+  payload: EncryptedVaultPayload,
+): Promise<boolean> {
+  try {
+    const marker = await decryptVaultPayload<{ type?: unknown; version?: unknown }>(
+      key,
+      payload,
+      VAULT_VERIFICATION_CONTEXT,
+    );
+    return marker.type === VAULT_VERIFICATION_MARKER.type && marker.version === 1;
+  } catch {
+    return false;
+  }
 }

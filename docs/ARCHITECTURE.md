@@ -67,5 +67,15 @@ génère l'UUID de chaque fiche avant chiffrement afin que cet UUID serve d'AAD 
 
 Le profil stocke uniquement les paramètres KDF et une enveloppe de vérification chiffrée. Une
 fiche stocke uniquement son UUID, son texte chiffré, son IV, sa version de schéma et sa révision.
-Une mise à jour ou suppression fournit la révision lue ; un autre écrivain l'ayant déjà modifiée
-provoque une réponse `409`. Toutes les réponses de ces routes portent `Cache-Control: no-store`.
+Chaque mutation fournit la révision globale du profil et, pour une fiche existante, la révision de
+cette fiche. Un autre écrivain ayant modifié l'une d'elles provoque une réponse `409`. Toutes les
+réponses de ces routes portent `Cache-Control: no-store`.
+
+Le déverrouillage et la vérification de phrase sont exécutés dans le navigateur à partir d'une
+enveloppe sentinelle. La clé `CryptoKey` reste uniquement dans l'état React de l'onglet et disparaît
+au rechargement, à la déconnexion ou au verrouillage manuel. Aucun stockage web ne la reçoit.
+
+La rotation lit puis déchiffre localement toutes les fiches, génère un nouveau sel et un IV neuf par
+enveloppe, puis appelle `/api/vault/rekey`. Toutes les mutations verrouillent la révision globale du
+profil dans une transaction PostgreSQL. Une révision de profil ou de fiche inattendue entraîne un
+rollback complet et une réponse `409` : l'ancien coffre reste alors intégralement utilisable.

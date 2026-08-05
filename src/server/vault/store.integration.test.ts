@@ -7,13 +7,13 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Database } from "@/db/client";
 import * as schema from "@/db/schema";
 import { user } from "@/db/schema";
+import { initializeVaultProfile, listVaultRecords, readVaultProfile } from "@/server/vault/store";
 import {
-  createVaultRecord,
-  deleteVaultRecord,
-  initializeVaultProfile,
-  listVaultRecords,
-  updateVaultRecord,
-} from "@/server/vault/store";
+  createVaultRecordTransaction,
+  deleteVaultRecordTransaction,
+  rotateVaultTransaction,
+  updateVaultRecordTransaction,
+} from "@/server/vault/transaction-store";
 
 const databaseUrl = process.env["TEST_DATABASE_URL"];
 const isSafeTestDatabase = (() => {
@@ -60,27 +60,89 @@ run("persistance PostgreSQL du coffre", () => {
     expect((await initializeVaultProfile(database, ownerId, profileInput)).status).toBe("ok");
     expect((await initializeVaultProfile(database, ownerId, profileInput)).status).toBe("conflict");
 
-    expect((await createVaultRecord(database, ownerId, { id: recordId, ...envelope })).status).toBe(
-      "ok",
-    );
+    expect(
+      (
+        await createVaultRecordTransaction(pool, ownerId, {
+          id: recordId,
+          ...envelope,
+          profileRevision: 1,
+        })
+      ).status,
+    ).toBe("ok");
     expect(await listVaultRecords(database, otherId)).toEqual([]);
 
     expect(
-      (await updateVaultRecord(database, ownerId, recordId, { ...envelope, revision: 2 })).status,
+      (
+        await rotateVaultTransaction(pool, ownerId, {
+          profile: { ...profileInput, revision: 1 },
+          records: [{ id: recordId, ...envelope, revision: 1 }],
+        })
+      ).status,
     ).toBe("conflict");
     expect(
-      (await updateVaultRecord(database, otherId, recordId, { ...envelope, revision: 1 })).status,
+      (
+        await rotateVaultTransaction(pool, ownerId, {
+          profile: { ...profileInput, salt: "B".repeat(22), revision: 2 },
+          records: [{ id: recordId, ...envelope, revision: 2 }],
+        })
+      ).status,
+    ).toBe("conflict");
+
+    const rotated = await rotateVaultTransaction(pool, ownerId, {
+      profile: { ...profileInput, salt: "B".repeat(22), revision: 2 },
+      records: [{ id: recordId, ...envelope, ciphertext: "B".repeat(22), revision: 1 }],
+    });
+    expect(rotated).toEqual({ status: "ok", value: { profileRevision: 3 } });
+    expect((await readVaultProfile(database, ownerId))?.salt).toBe("B".repeat(22));
+    expect((await listVaultRecords(database, ownerId))[0]).toMatchObject({
+      ciphertext: "B".repeat(22),
+      revision: 2,
+    });
+
+    expect(
+      (
+        await updateVaultRecordTransaction(pool, ownerId, recordId, {
+          ...envelope,
+          revision: 2,
+          profileRevision: 2,
+        })
+      ).status,
+    ).toBe("conflict");
+    expect(
+      (
+        await updateVaultRecordTransaction(pool, otherId, recordId, {
+          ...envelope,
+          revision: 2,
+          profileRevision: 1,
+        })
+      ).status,
     ).toBe("not_found");
 
-    const updated = await updateVaultRecord(database, ownerId, recordId, {
+    const updated = await updateVaultRecordTransaction(pool, ownerId, recordId, {
       ...envelope,
-      ciphertext: "B".repeat(22),
-      revision: 1,
+      ciphertext: "C".repeat(22),
+      revision: 2,
+      profileRevision: 3,
     });
     expect(updated.status).toBe("ok");
-    if (updated.status === "ok") expect(updated.value.revision).toBe(2);
+    if (updated.status === "ok") {
+      expect(updated.value.revision).toBe(3);
+      expect(updated.value.profileRevision).toBe(4);
+    }
 
-    expect((await deleteVaultRecord(database, ownerId, recordId, 1)).status).toBe("conflict");
-    expect((await deleteVaultRecord(database, ownerId, recordId, 2)).status).toBe("ok");
+    expect(
+      (
+        await deleteVaultRecordTransaction(pool, ownerId, recordId, {
+          revision: 2,
+          profileRevision: 4,
+        })
+      ).status,
+    ).toBe("conflict");
+    expect(
+      await deleteVaultRecordTransaction(pool, ownerId, recordId, {
+        revision: 3,
+        profileRevision: 4,
+      }),
+    ).toEqual({ status: "ok", value: { id: recordId, profileRevision: 5 } });
   });
 });

@@ -39,7 +39,11 @@ describe("contrats du coffre", () => {
 
   it("exige un UUID client et une révision positive", () => {
     expect(createVaultRecordSchema.safeParse({ id: "record-1", ...envelope }).success).toBe(false);
-    expect(updateVaultRecordSchema.safeParse({ ...envelope, revision: 0 }).success).toBe(false);
-    expect(updateVaultRecordSchema.safeParse({ ...envelope, revision: 1 }).success).toBe(true);
+    expect(
+      updateVaultRecordSchema.safeParse({ ...envelope, revision: 0, profileRevision: 1 }).success,
+    ).toBe(false);
+    expect(
+      updateVaultRecordSchema.safeParse({ ...envelope, revision: 1, profileRevision: 1 }).success,
+    ).toBe(true);
   });
 });

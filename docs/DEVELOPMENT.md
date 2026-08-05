@@ -52,6 +52,11 @@ Toute modification de format doit :
 3. tester les altérations, les mauvais contextes et les paramètres affaiblis ;
 4. éviter toute journalisation du texte clair, de la phrase ou de la clé.
 
+La phrase secrète ne doit jamais être ajoutée à un paramètre d'URL, une requête API, un stockage
+web, un état serveur ou un outil d'observabilité. Les mutations de fiches doivent conserver le
+verrou transactionnel du profil et incrémenter sa révision globale ; cet invariant empêche une
+écriture chiffrée avec l'ancienne clé de suivre une rotation réussie.
+
 ## Commits et PR
 
 Les titres suivent Conventional Commits et leur sujet commence par une minuscule, par exemple
