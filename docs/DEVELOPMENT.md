@@ -62,6 +62,11 @@ tester au minimum la fin de mois, l'année bissextile, la date de fin inclusive 
 exacte des 168 heures. Les tris et recherches restent côté navigateur : ajouter une colonne métier
 en clair dans PostgreSQL violerait le modèle de confiance.
 
+Les parcours de copie et d'ouverture externe doivent tester que chaque secret est copié séparément,
+qu'il reste masqué par défaut et qu'une erreur du presse-papiers est signalée sans exposer sa
+valeur. Les URL externes sont des constantes : aucun login, mot de passe ou secret TOTP ne doit
+apparaître dans une URL. Tout nouvel onglet externe conserve `noopener` et `noreferrer`.
+
 ## Commits et PR
 
 Les titres suivent Conventional Commits et leur sujet commence par une minuscule, par exemple

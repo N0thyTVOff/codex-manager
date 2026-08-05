@@ -92,3 +92,10 @@ fiche dans les archives à partir du lendemain local. Un quota épuisé porte un
 son état effectif redevient disponible lorsque l'horloge atteint exactement cet instant plus 168
 heures. Le prochain changement est programmé dans l'onglet, sans tâche serveur et sans dévoiler une
 date métier à PostgreSQL.
+
+Les actions rapides manipulent exclusivement les valeurs déjà déchiffrées en mémoire. Le
+presse-papiers n'est sollicité qu'après une action explicite et les secrets restent masqués par
+défaut. Les ouvertures de ChatGPT et de 2FA.live utilisent une URL constante dans un nouvel onglet
+isolé avec `noopener` et `noreferrer`. En particulier, la graine TOTP n'est jamais ajoutée à une URL,
+envoyée à l'API ou transmise automatiquement au service tiers. Google Authenticator suit une
+procédure de saisie manuelle.

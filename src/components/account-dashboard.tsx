@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 
 import { AccountForm } from "@/components/account-form";
+import { AccountQuickActions } from "@/components/account-quick-actions";
 import {
   isAccountExpired,
   localDate,
@@ -425,8 +426,13 @@ function AccountCard({
           <span className={`account-status status-${account.quotaStatus}`}>{status}</span>
           <h3>{account.label}</h3>
         </div>
-        <span className="account-login">{maskLogin(account.login)}</span>
       </div>
+      <AccountQuickActions
+        account={account}
+        disabled={pending}
+        allowUse={!archivedView && !expired}
+        onUse={onInUse}
+      />
       <dl className="account-dates">
         <div>
           <dt>Début</dt>
@@ -449,11 +455,6 @@ function AccountCard({
         </button>
         {!archivedView ? (
           <>
-            {account.quotaStatus !== "in_use" ? (
-              <button type="button" onClick={onInUse} disabled={pending}>
-                Marquer en cours
-              </button>
-            ) : null}
             {account.quotaStatus !== "exhausted" ? (
               <button type="button" onClick={onExhausted} disabled={pending}>
                 Quota épuisé
@@ -502,12 +503,6 @@ function toEnvelope(record: z.infer<typeof storedRecordSchema>): VaultRecordEnve
     schemaVersion: record.schemaVersion,
     revision: record.revision,
   };
-}
-
-function maskLogin(login: string): string {
-  const [name, domain] = login.split("@");
-  if (!domain) return `${login.slice(0, 2)}••••`;
-  return `${(name ?? "").slice(0, 2)}••••@${domain}`;
 }
 
 function formatDate(value: string): string {
