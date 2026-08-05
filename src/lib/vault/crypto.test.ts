@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import type { VaultSecret } from "@/types/vault";
 import {
   createVaultSalt,
   createVaultVerification,
@@ -10,7 +9,7 @@ import {
   verifyVaultKey,
 } from "./crypto";
 
-const secret: VaultSecret = {
+const secret = {
   label: "Compte principal",
   login: "utilisateur@example.test",
   password: "mot-de-passe-de-test",
@@ -29,7 +28,7 @@ describe("coffre chiffré", () => {
     const payload = await encryptVaultPayload(key, secret, "record-1");
 
     expect(payload.ciphertext).not.toContain(secret.password);
-    await expect(decryptVaultPayload<VaultSecret>(key, payload, "record-1")).resolves.toEqual(
+    await expect(decryptVaultPayload<typeof secret>(key, payload, "record-1")).resolves.toEqual(
       secret,
     );
   });

@@ -79,3 +79,16 @@ La rotation lit puis déchiffre localement toutes les fiches, génère un nouvea
 enveloppe, puis appelle `/api/vault/rekey`. Toutes les mutations verrouillent la révision globale du
 profil dans une transaction PostgreSQL. Une révision de profil ou de fiche inattendue entraîne un
 rollback complet et une réponse `409` : l'ancien coffre reste alors intégralement utilisable.
+
+## Cycle de vie des comptes
+
+Une charge utile `VaultAccountV1` contient le libellé, les identifiants, la configuration 2FA, les
+notes, les dates d'abonnement, l'état du quota et l'archivage. La base ne peut distinguer aucun de
+ces champs : l'UUID technique, l'IV, les versions et le texte AES-GCM sont les seules données reçues
+par l'API.
+
+La date de fin est inclusive et reste une date calendaire sans fuseau. Le navigateur classe la
+fiche dans les archives à partir du lendemain local. Un quota épuisé porte un instant ISO chiffré ;
+son état effectif redevient disponible lorsque l'horloge atteint exactement cet instant plus 168
+heures. Le prochain changement est programmé dans l'onglet, sans tâche serveur et sans dévoiler une
+date métier à PostgreSQL.

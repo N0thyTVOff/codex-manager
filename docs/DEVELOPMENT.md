@@ -57,6 +57,11 @@ web, un état serveur ou un outil d'observabilité. Les mutations de fiches doiv
 verrou transactionnel du profil et incrémenter sa révision globale ; cet invariant empêche une
 écriture chiffrée avec l'ancienne clé de suivre une rotation réussie.
 
+Les règles calendaires et de quota vivent dans `src/lib/vault/accounts.ts`. Toute évolution doit
+tester au minimum la fin de mois, l'année bissextile, la date de fin inclusive et la frontière
+exacte des 168 heures. Les tris et recherches restent côté navigateur : ajouter une colonne métier
+en clair dans PostgreSQL violerait le modèle de confiance.
+
 ## Commits et PR
 
 Les titres suivent Conventional Commits et leur sujet commence par une minuscule, par exemple

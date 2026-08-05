@@ -6,7 +6,10 @@ import {
   encryptVaultPayload,
   verifyVaultKey,
 } from "@/lib/vault/crypto";
+import { vaultAccountSchema } from "@/lib/vault/accounts";
+import type { DecryptedVaultAccount } from "@/lib/vault/accounts";
 import { VAULT_ENCRYPTION_VERSION, VAULT_KDF_ITERATIONS } from "@/types/vault";
+import type { VaultAccountV1 } from "@/types/vault";
 
 export interface VaultProfileEnvelope {
   readonly kdfAlgorithm: "PBKDF2-SHA-256";
@@ -131,5 +134,38 @@ export async function rotateVaultLocally(
       profile: { ...nextSetup.profile, revision: profile.revision },
       records: rotatedRecords,
     },
+  };
+}
+
+export async function decryptVaultAccounts(
+  key: CryptoKey,
+  records: ReadonlyArray<VaultRecordEnvelope>,
+): Promise<DecryptedVaultAccount[]> {
+  return Promise.all(
+    records.map(async (record) => ({
+      id: record.id,
+      revision: record.revision,
+      account: vaultAccountSchema.parse(
+        await decryptVaultPayload<unknown>(
+          key,
+          { version: record.schemaVersion, ciphertext: record.ciphertext, iv: record.iv },
+          record.id,
+        ),
+      ),
+    })),
+  );
+}
+
+export async function encryptVaultAccount(
+  key: CryptoKey,
+  id: string,
+  account: VaultAccountV1,
+): Promise<Omit<VaultRecordEnvelope, "id" | "revision">> {
+  const validated = vaultAccountSchema.parse(account);
+  const envelope = await encryptVaultPayload(key, validated, id);
+  return {
+    ciphertext: envelope.ciphertext,
+    iv: envelope.iv,
+    schemaVersion: envelope.version,
   };
 }

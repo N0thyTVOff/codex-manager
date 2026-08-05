@@ -402,6 +402,255 @@ footer {
 .rotation-card .vault-panel h1 {
   font-size: clamp(34px, 5vw, 52px);
 }
+.vault-open-layout {
+  padding-bottom: 90px;
+}
+.vault-open-header {
+  padding-bottom: 64px;
+}
+.accounts-section {
+  border-top: 1px solid var(--line);
+  padding: 64px 0 90px;
+}
+.accounts-toolbar,
+.account-filters,
+.account-card-heading,
+.form-actions,
+.inline-confirmation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.accounts-toolbar h2,
+.account-editor h2 {
+  margin-top: 10px;
+}
+.accounts-toolbar h2 {
+  font-size: clamp(32px, 5vw, 52px);
+}
+.account-filters {
+  margin: 36px 0 28px;
+}
+.view-tabs {
+  display: flex;
+  gap: 8px;
+}
+.view-tabs button,
+.account-card-actions button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 13px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.view-tabs button[aria-selected="true"] {
+  border-color: rgba(199, 255, 74, 0.5);
+  background: rgba(199, 255, 74, 0.08);
+  color: var(--lime);
+}
+.view-tabs span {
+  margin-left: 5px;
+  font-size: 11px;
+}
+.account-search {
+  display: grid;
+  min-width: min(330px, 100%);
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.account-search input,
+.account-field input,
+.account-field select,
+.account-field textarea,
+.inline-confirmation input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 12px 14px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.account-search input:focus-visible,
+.account-field input:focus-visible,
+.account-field select:focus-visible,
+.account-field textarea:focus-visible,
+.inline-confirmation input:focus-visible {
+  border-color: var(--lime);
+  outline: 2px solid rgba(199, 255, 74, 0.22);
+  outline-offset: 2px;
+}
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.account-card,
+.account-editor,
+.inline-confirmation,
+.accounts-empty {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+}
+.account-card {
+  display: grid;
+  align-content: start;
+  min-height: 330px;
+  padding: 22px;
+}
+.account-card-heading {
+  align-items: flex-start;
+}
+.account-card h3 {
+  margin: 12px 0 0;
+  font-size: 22px;
+}
+.account-login {
+  max-width: 48%;
+  overflow: hidden;
+  color: var(--muted);
+  font:
+    12px ui-monospace,
+    monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-status {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: rgba(199, 255, 74, 0.1);
+  color: var(--lime);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.status-exhausted {
+  background: rgba(255, 159, 159, 0.1);
+  color: #ffb3b3;
+}
+.status-in_use {
+  background: rgba(126, 195, 255, 0.12);
+  color: #9fd2ff;
+}
+.account-dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 28px 0 18px;
+}
+.account-dates div {
+  display: grid;
+  gap: 6px;
+}
+.account-dates dt {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+.account-dates dd {
+  margin: 0;
+  font-weight: 700;
+}
+.quota-reset {
+  color: var(--muted);
+  font-size: 12px;
+}
+.account-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 7px;
+  margin-top: auto;
+  padding-top: 26px;
+}
+.account-card-actions button:hover {
+  border-color: rgba(199, 255, 74, 0.45);
+  color: var(--lime);
+}
+.account-card-actions button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.account-card-actions .danger-link {
+  color: #ff9f9f;
+}
+.account-editor {
+  margin: 28px 0;
+  padding: clamp(22px, 4vw, 36px);
+}
+.account-editor h2 {
+  font-size: clamp(30px, 4vw, 44px);
+}
+.account-form {
+  display: grid;
+  max-width: 760px;
+  gap: 17px;
+  margin-top: 30px;
+}
+.account-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.account-field {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+.account-field textarea {
+  resize: vertical;
+}
+.form-actions {
+  justify-content: flex-start;
+}
+.inline-confirmation {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  margin: 24px 0;
+  padding: 20px;
+}
+.inline-confirmation label,
+.inline-confirmation p {
+  color: var(--muted);
+  font-size: 13px;
+}
+.inline-confirmation input {
+  width: auto;
+}
+.danger-confirmation {
+  border-color: rgba(255, 159, 159, 0.35);
+}
+.danger-button {
+  border: 0;
+  border-radius: 11px;
+  padding: 12px 15px;
+  background: #ff9f9f;
+  color: #2a0a0a;
+  font-weight: 800;
+  cursor: pointer;
+}
+.danger-button:disabled {
+  opacity: 0.55;
+}
+.accounts-empty {
+  padding: 40px;
+  color: var(--muted);
+  text-align: center;
+}
+.accounts-empty strong {
+  color: var(--ink);
+  font-size: 18px;
+}
+.account-global-error {
+  margin: 0 0 24px;
+}
 @media (max-width: 820px) {
   main {
     width: min(100% - 28px, 680px);
@@ -430,6 +679,22 @@ footer {
   .vault-state-line {
     align-items: flex-start;
     flex-direction: column;
+  }
+  .accounts-toolbar,
+  .account-filters,
+  .account-card-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .account-grid,
+  .account-form-row {
+    grid-template-columns: 1fr;
+  }
+  .account-login {
+    max-width: 100%;
+  }
+  .account-search {
+    min-width: 100%;
   }
 }
 @media (prefers-reduced-motion: reduce) {
