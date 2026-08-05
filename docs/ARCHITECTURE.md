@@ -52,8 +52,20 @@ src/app/           routes et présentation
 src/components/    composants d'interface
 src/lib/auth/      authentification et autorisation
 src/lib/vault/     primitives cryptographiques côté navigateur
+src/server/vault/  validation, session et persistance des enveloppes
 src/db/            schéma et client PostgreSQL
 src/types/         contrats partagés
 drizzle/           migrations SQL versionnées
 scripts/           contrôles locaux de dépôt
 ```
+
+## Contrat de persistance du coffre
+
+Les routes `/api/vault/profile` et `/api/vault/records` exigent une session GitHub valide. Elles
+n'acceptent aucun `userId` : le propriétaire est toujours déduit de la session. Le navigateur
+génère l'UUID de chaque fiche avant chiffrement afin que cet UUID serve d'AAD AES-GCM.
+
+Le profil stocke uniquement les paramètres KDF et une enveloppe de vérification chiffrée. Une
+fiche stocke uniquement son UUID, son texte chiffré, son IV, sa version de schéma et sa révision.
+Une mise à jour ou suppression fournit la révision lue ; un autre écrivain l'ayant déjà modifiée
+provoque une réponse `409`. Toutes les réponses de ces routes portent `Cache-Control: no-store`.

@@ -51,6 +51,34 @@ jobs:
       - uses: ./.github/actions/setup
       - run: npm run test:coverage
 
+  persistence:
+    name: Persistance PostgreSQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_DB: codex_manager_test
+          POSTGRES_USER: codex_manager
+          POSTGRES_PASSWORD: local-ci-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U codex_manager -d codex_manager_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Cette base jetable appartient au runner et n'utilise aucun secret ni accès Neon.
+      DATABASE_URL: postgresql://codex_manager:local-ci-only@127.0.0.1:5432/codex_manager_test
+      TEST_DATABASE_URL: postgresql://codex_manager:local-ci-only@127.0.0.1:5432/codex_manager_test
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - run: npm run db:migrate
+      - run: npm run test:integration
+
   repository-checks:
     name: Schéma et dépôt
     runs-on: ubuntu-latest
@@ -102,7 +130,18 @@ jobs:
   ci:
     name: CI
     if: always()
-    needs: [format, lint, typecheck, tests, repository-checks, build, audit, dependency-review]
+    needs:
+      [
+        format,
+        lint,
+        typecheck,
+        tests,
+        persistence,
+        repository-checks,
+        build,
+        audit,
+        dependency-review,
+      ]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
