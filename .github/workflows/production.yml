@@ -72,19 +72,19 @@ jobs:
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: npx --yes vercel@58.5.1 pull --yes --environment=production --token="$VERCEL_TOKEN"
+        run: npx --yes vercel@58.5.1 pull --yes --environment=production
       - name: Construire dans l'environnement Vercel
         env:
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: npx --yes vercel@58.5.1 build --prod --token="$VERCEL_TOKEN"
+        run: npx --yes vercel@58.5.1 build --prod
       - name: Appliquer les migrations versionnées
         env:
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: npx --yes vercel@58.5.1 env run --environment=production --token="$VERCEL_TOKEN" -- npm run db:migrate
+        run: npx --yes vercel@58.5.1 env run --environment=production -- npm run db:migrate
       - name: Créer un déploiement sans l'exposer au domaine
         id: deploy
         env:
@@ -92,7 +92,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          url=$(npx --yes vercel@58.5.1 deploy --prebuilt --prod --skip-domain --yes --token="$VERCEL_TOKEN")
+          url=$(npx --yes vercel@58.5.1 deploy --prebuilt --prod --skip-domain --yes)
           test -n "$url"
           echo "url=$url" >> "$GITHUB_OUTPUT"
       - name: Vérifier le déploiement isolé
@@ -103,7 +103,7 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           # `vercel curl` obtient un bypass temporaire pour l'URL technique protégée.
-          health=$(npx --yes vercel@58.5.1 curl /api/health --deployment "$DEPLOYMENT_URL" --token="$VERCEL_TOKEN" -- --silent --show-error)
+          health=$(npx --yes vercel@58.5.1 curl /api/health --deployment "$DEPLOYMENT_URL" -- --silent --show-error)
           HEALTH="$health" node -e 'const value = JSON.parse(process.env.HEALTH); if (value.status !== "ok") process.exit(1)'
       - name: Promouvoir le déploiement validé
         env:
@@ -111,4 +111,4 @@ jobs:
           VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        run: npx --yes vercel@58.5.1 promote "$DEPLOYMENT_URL" --yes --token="$VERCEL_TOKEN"
+        run: npx --yes vercel@58.5.1 promote "$DEPLOYMENT_URL" --yes
