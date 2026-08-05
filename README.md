@@ -16,12 +16,13 @@
 Codex Manager remplace un bloc-notes contenant des informations sensibles par une application
 structurée, personnelle et auditable. La version publiée `0.1.0` fournit le socle technique. Le
 développement de la version groupée `0.2.0` ajoute progressivement la persistance chiffrée,
-l'initialisation, le déverrouillage local et la rotation atomique de la phrase secrète.
+l'initialisation, le déverrouillage local, la rotation atomique et la gestion du cycle de vie des
+comptes.
 
 > [!IMPORTANT]
-> Les écrans de gestion complète des fiches ne sont pas encore disponibles. Le projet ne partage
-> pas de comptes et n'automatise pas la connexion à ChatGPT. Chaque compte OpenAI reste destiné à
-> la personne qui l'a créé, conformément à la
+> Les actions de copie et les parcours 2FA seront ajoutés dans une PR suivante. Le projet ne partage
+> pas de comptes et n'automatise pas la connexion à ChatGPT. Chaque compte OpenAI reste destiné à la
+> personne qui l'a créé, conformément à la
 > [politique officielle de partage des comptes](https://help.openai.com/en/articles/10471989-openai-account-sharing-policy).
 
 ## Sécurité par conception
@@ -38,6 +39,15 @@ l'initialisation, le déverrouillage local et la rotation atomique de la phrase 
 
 Une phrase secrète perdue ne peut pas être récupérée. Les sauvegardes de données ne remplacent
 donc pas une sauvegarde sûre de cette phrase dans un gestionnaire de mots de passe reconnu.
+
+## Gestion disponible dans le coffre
+
+- ajout et modification de fiches entièrement chiffrées côté navigateur ;
+- date de fin préremplie à un mois calendaire et modifiable ;
+- expiration automatique le lendemain de la date de fin inclusive ;
+- états disponible, en cours ou quota épuisé avec remise à zéro après exactement 168 heures ;
+- renouvellement, archivage, restauration et suppression définitive confirmée ;
+- tri prioritaire et recherche locale dans les données déchiffrées.
 
 ## Démarrage rapide
 

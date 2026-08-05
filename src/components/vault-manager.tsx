@@ -4,8 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 
+import { AccountDashboard } from "@/components/account-dashboard";
 import { authClient } from "@/lib/auth/client";
-import { createVaultSetup, rotateVaultLocally, unlockVaultKey } from "@/lib/vault/lifecycle";
+import type { DecryptedVaultAccount } from "@/lib/vault/accounts";
+import {
+  createVaultSetup,
+  decryptVaultAccounts,
+  rotateVaultLocally,
+  unlockVaultKey,
+} from "@/lib/vault/lifecycle";
 import type { VaultProfileEnvelope, VaultRecordEnvelope } from "@/lib/vault/lifecycle";
 
 const profileSchema = z.strictObject({
@@ -36,6 +43,7 @@ export function VaultManager() {
   const [phase, setPhase] = useState<VaultPhase>("loading");
   const [profile, setProfile] = useState<VaultProfileEnvelope | null>(null);
   const [records, setRecords] = useState<ReadonlyArray<VaultRecordEnvelope>>([]);
+  const [accounts, setAccounts] = useState<ReadonlyArray<DecryptedVaultAccount>>([]);
   const [vaultKey, setVaultKey] = useState<CryptoKey | null>(null);
   const [rotationOpen, setRotationOpen] = useState(false);
   const rotationAllowed = useRef(false);
@@ -60,6 +68,7 @@ export function VaultManager() {
     rotationAllowed.current = false;
     setVaultKey(null);
     setRecords([]);
+    setAccounts([]);
     setRotationOpen(false);
     setPhase(profile ? "locked" : "setup");
   }
@@ -88,6 +97,7 @@ export function VaultManager() {
         onReady={(nextProfile, key) => {
           setProfile(nextProfile);
           setVaultKey(key);
+          setAccounts([]);
           setPhase("unlocked");
         }}
       />
@@ -97,9 +107,10 @@ export function VaultManager() {
     return (
       <UnlockVault
         profile={profile}
-        onUnlocked={(key, nextRecords) => {
+        onUnlocked={(key, nextRecords, nextAccounts) => {
           setVaultKey(key);
           setRecords(nextRecords);
+          setAccounts(nextAccounts);
           setPhase("unlocked");
         }}
         onSignOut={signOut}
@@ -108,38 +119,53 @@ export function VaultManager() {
   }
 
   return (
-    <section className="vault-panel" aria-labelledby="open-vault-title">
-      <div className="vault-state-line">
-        <span className="status-dot">Déverrouillé</span>
-        <span>
-          {records.length} fiche{records.length === 1 ? "" : "s"} chiffrée
-          {records.length === 1 ? "" : "s"}
-        </span>
-      </div>
-      <p className="eyebrow">Clé locale active</p>
-      <h1 id="open-vault-title">Le coffre est ouvert.</h1>
-      <p className="vault-copy">
-        La clé existe uniquement dans la mémoire de cet onglet. La gestion des comptes arrivera dans
-        l’issue suivante ; tu peux déjà verrouiller le coffre ou changer sa phrase secrète.
-      </p>
-      <div className="vault-actions">
-        <button className="primary-button" type="button" onClick={lockVault}>
-          Verrouiller maintenant
-        </button>
-        <button
-          className="secondary-button"
-          type="button"
-          onClick={() => {
-            rotationAllowed.current = true;
-            setRotationOpen(true);
+    <div className="vault-open-layout">
+      <section className="vault-panel vault-open-header" aria-labelledby="open-vault-title">
+        <div className="vault-state-line">
+          <span className="status-dot">Déverrouillé</span>
+          <span>
+            {records.length} fiche{records.length === 1 ? "" : "s"} chiffrée
+            {records.length === 1 ? "" : "s"}
+          </span>
+        </div>
+        <p className="eyebrow">Clé locale active</p>
+        <h1 id="open-vault-title">Le coffre est ouvert.</h1>
+        <p className="vault-copy">
+          La clé existe uniquement dans la mémoire de cet onglet. Les comptes sont déchiffrés ici,
+          puis rechiffrés avant chaque écriture.
+        </p>
+        <div className="vault-actions">
+          <button className="primary-button" type="button" onClick={lockVault}>
+            Verrouiller maintenant
+          </button>
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={() => {
+              rotationAllowed.current = true;
+              setRotationOpen(true);
+            }}
+          >
+            Changer la phrase secrète
+          </button>
+          <button className="text-button" type="button" onClick={signOut}>
+            Se déconnecter
+          </button>
+        </div>
+      </section>
+      {profile && vaultKey ? (
+        <AccountDashboard
+          profileRevision={profile.revision}
+          vaultKey={vaultKey}
+          records={records}
+          accounts={accounts}
+          onChanged={(profileRevision, nextRecords, nextAccounts) => {
+            setProfile({ ...profile, revision: profileRevision });
+            setRecords(nextRecords);
+            setAccounts(nextAccounts);
           }}
-        >
-          Changer la phrase secrète
-        </button>
-        <button className="text-button" type="button" onClick={signOut}>
-          Se déconnecter
-        </button>
-      </div>
+        />
+      ) : null}
       {rotationOpen && profile && vaultKey ? (
         <RotateVault
           profile={profile}
@@ -157,7 +183,7 @@ export function VaultManager() {
           }}
         />
       ) : null}
-    </section>
+    </div>
   );
 }
 
@@ -230,7 +256,11 @@ function UnlockVault({
   onSignOut,
 }: {
   profile: VaultProfileEnvelope;
-  onUnlocked: (key: CryptoKey, records: ReadonlyArray<VaultRecordEnvelope>) => void;
+  onUnlocked: (
+    key: CryptoKey,
+    records: ReadonlyArray<VaultRecordEnvelope>,
+    accounts: ReadonlyArray<DecryptedVaultAccount>,
+  ) => void;
   onSignOut: () => Promise<void>;
 }) {
   const [passphrase, setPassphrase] = useState("");
@@ -249,8 +279,9 @@ function UnlockVault({
         return;
       }
       const nextRecords = await readRecords();
+      const nextAccounts = await decryptVaultAccounts(key, nextRecords);
       setPassphrase("");
-      onUnlocked(key, nextRecords);
+      onUnlocked(key, nextRecords, nextAccounts);
     } catch {
       setError("Déverrouillage impossible. Réessaie sans recharger de donnée sensible.");
     } finally {

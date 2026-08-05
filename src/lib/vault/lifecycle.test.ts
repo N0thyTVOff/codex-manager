@@ -1,7 +1,30 @@
 import { describe, expect, it } from "vitest";
 
 import { decryptVaultPayload, encryptVaultPayload } from "@/lib/vault/crypto";
-import { createVaultSetup, rotateVaultLocally, unlockVaultKey } from "@/lib/vault/lifecycle";
+import {
+  createVaultSetup,
+  decryptVaultAccounts,
+  encryptVaultAccount,
+  rotateVaultLocally,
+  unlockVaultKey,
+} from "@/lib/vault/lifecycle";
+import type { VaultAccountV1 } from "@/types/vault";
+
+const account: VaultAccountV1 = {
+  version: 1,
+  label: "Compte de test",
+  login: "personne@example.test",
+  password: "mot-de-passe-inactif",
+  notes: "Fixture sans donnée réelle.",
+  totpProvider: "none",
+  totpSecret: null,
+  purchasedOn: "2026-08-05",
+  endsOn: "2026-09-05",
+  quotaStatus: "available",
+  quotaExhaustedAt: null,
+  lastUsedAt: null,
+  archivedAt: null,
+};
 
 describe("cycle de vie du coffre", () => {
   it("initialise puis déverrouille uniquement avec la bonne phrase", async () => {
@@ -64,5 +87,15 @@ describe("cycle de vie du coffre", () => {
         [],
       ),
     ).resolves.toBeNull();
+  });
+
+  it("chiffre puis valide les fiches de compte après déchiffrement", async () => {
+    const setup = await createVaultSetup("phrase initiale suffisamment longue");
+    const id = "8919b498-c50e-4e63-8c12-71d9bd503b77";
+    const envelope = await encryptVaultAccount(setup.key, id, account);
+
+    await expect(
+      decryptVaultAccounts(setup.key, [{ id, revision: 4, ...envelope }]),
+    ).resolves.toEqual([{ id, revision: 4, account }]);
   });
 });
