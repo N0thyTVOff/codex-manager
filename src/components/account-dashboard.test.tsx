@@ -117,6 +117,24 @@ describe("tableau de bord des comptes", () => {
     );
   });
 
+  it("marque le compte en cours lorsque l’action d’utilisation ouvre ChatGPT", async () => {
+    const onChanged = vi.fn();
+    vi.spyOn(window, "open").mockReturnValue(null);
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      jsonResponse({ record: { id, ...envelope, revision: 2, profileRevision: 2 } }),
+    );
+    renderDashboard(onChanged);
+
+    fireEvent.click(screen.getByRole("button", { name: "Utiliser ce compte" }));
+
+    await waitFor(() => expect(onChanged).toHaveBeenCalledOnce());
+    expect(encryptVaultAccount).toHaveBeenCalledWith(
+      key,
+      id,
+      expect.objectContaining({ quotaStatus: "in_use", lastUsedAt: expect.any(String) }),
+    );
+  });
+
   it("restaure une archive manuelle encore valide", async () => {
     const onChanged = vi.fn();
     vi.spyOn(globalThis, "fetch").mockResolvedValue(

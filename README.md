@@ -20,9 +20,8 @@ l'initialisation, le déverrouillage local, la rotation atomique et la gestion d
 comptes.
 
 > [!IMPORTANT]
-> Les actions de copie et les parcours 2FA seront ajoutés dans une PR suivante. Le projet ne partage
-> pas de comptes et n'automatise pas la connexion à ChatGPT. Chaque compte OpenAI reste destiné à la
-> personne qui l'a créé, conformément à la
+> Le projet ne partage pas de comptes et n'automatise pas la connexion à ChatGPT. Chaque compte
+> OpenAI reste destiné à la personne qui l'a créé, conformément à la
 > [politique officielle de partage des comptes](https://help.openai.com/en/articles/10471989-openai-account-sharing-policy).
 
 ## Sécurité par conception
@@ -48,6 +47,10 @@ donc pas une sauvegarde sûre de cette phrase dans un gestionnaire de mots de pa
 - états disponible, en cours ou quota épuisé avec remise à zéro après exactement 168 heures ;
 - renouvellement, archivage, restauration et suppression définitive confirmée ;
 - tri prioritaire et recherche locale dans les données déchiffrées.
+- login, mot de passe et clé 2FA masqués par défaut et copiables séparément ;
+- ouverture isolée de ChatGPT avec passage du compte à l'état « en cours » ;
+- parcours 2FA.live avec avertissement, sans clé dans l'URL ni transmission automatique ;
+- procédure d'ajout manuel pour Google Authenticator.
 
 ## Démarrage rapide
 
