@@ -1,8 +1,11 @@
 import { z } from "zod";
 
+import { vaultBackupSchema } from "@/lib/vault/backup";
+
 export const MAX_ENCRYPTED_PAYLOAD_LENGTH = 32_768;
 export const MAX_RECORDS_PER_USER = 100;
 export const MAX_REKEY_BODY_BYTES = 4_000_000;
+export const MAX_RESTORE_BODY_BYTES = 4_000_000;
 
 const base64Url = z.string().regex(/^[A-Za-z0-9_-]+$/u, "Encodage invalide.");
 const iv = base64Url.length(16);
@@ -50,8 +53,14 @@ export const rotateVaultSchema = z.strictObject({
     .max(MAX_RECORDS_PER_USER),
 });
 
+export const restoreVaultSchema = z.strictObject({
+  profileRevision: z.number().int().positive(),
+  backup: vaultBackupSchema,
+});
+
 export type InitializeVaultProfileInput = z.infer<typeof initializeVaultProfileSchema>;
 export type CreateVaultRecordInput = z.infer<typeof createVaultRecordSchema>;
 export type UpdateVaultRecordInput = z.infer<typeof updateVaultRecordSchema>;
 export type DeleteVaultRecordInput = z.infer<typeof deleteVaultRecordSchema>;
 export type RotateVaultInput = z.infer<typeof rotateVaultSchema>;
+export type RestoreVaultInput = z.infer<typeof restoreVaultSchema>;

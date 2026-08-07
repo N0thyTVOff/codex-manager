@@ -31,6 +31,8 @@ Après une modification des workflows, formulaires ou documents, vérifier aussi
 ## Fichiers sensibles
 
 - `src/lib/vault/crypto.ts` et `src/db/schema.ts` : préserver le format chiffré et sa migration ;
+- `src/lib/vault/backup.ts` et `/api/vault/restore` : préserver le format versionné, la validation
+  locale et le remplacement transactionnel ;
 - `src/lib/auth/` : préserver la restriction à l'identifiant GitHub autorisé ;
 - `.github/workflows/production.yml` : conserver release → validation → production ;
 - `.github/workflows/release-please.yml` et fichiers Release Please : ne pas publier par PR ;
@@ -48,6 +50,8 @@ Après une modification des workflows, formulaires ou documents, vérifier aussi
 - aucune connexion à une base de production depuis les tests ou la CI ;
 - couverture minimale de 90 % sur la logique cryptographique ;
 - toute évolution de schéma produit une migration Drizzle relue et testée hors ligne ;
+- une restauration valide et déchiffre toutes les fiches localement avant de remplacer le coffre
+  dans une transaction unique ;
 - aucune API OpenAI ni automatisation de connexion aux comptes ChatGPT sans décision explicite ;
 - aucun partage de compte : le produit reste un inventaire personnel.
 

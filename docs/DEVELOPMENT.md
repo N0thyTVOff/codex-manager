@@ -67,6 +67,12 @@ qu'il reste masqué par défaut et qu'une erreur du presse-papiers est signalée
 valeur. Les URL externes sont des constantes : aucun login, mot de passe ou secret TOTP ne doit
 apparaître dans une URL. Tout nouvel onglet externe conserve `noopener` et `noreferrer`.
 
+Le format de sauvegarde est versionné dans `src/lib/vault/backup.ts`. Toute évolution doit préserver
+la lecture des versions prises en charge ou introduire une migration explicite. Les tests couvrent
+la phrase incorrecte, l'altération d'une enveloppe, les champs inconnus, les UUID dupliqués, les
+limites de taille et le rollback PostgreSQL. Une restauration ne doit jamais envoyer la phrase au
+serveur ni accepter un propriétaire fourni par le client.
+
 ## Commits et PR
 
 Les titres suivent Conventional Commits et leur sujet commence par une minuscule, par exemple

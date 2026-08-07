@@ -46,11 +46,26 @@ donc pas une sauvegarde sûre de cette phrase dans un gestionnaire de mots de pa
 - expiration automatique le lendemain de la date de fin inclusive ;
 - états disponible, en cours ou quota épuisé avec remise à zéro après exactement 168 heures ;
 - renouvellement, archivage, restauration et suppression définitive confirmée ;
-- tri prioritaire et recherche locale dans les données déchiffrées.
+- tri prioritaire et recherche locale dans les données déchiffrées ;
 - login, mot de passe et clé 2FA masqués par défaut et copiables séparément ;
 - ouverture isolée de ChatGPT avec passage du compte à l'état « en cours » ;
 - parcours 2FA.live avec avertissement, sans clé dans l'URL ni transmission automatique ;
-- procédure d'ajout manuel pour Google Authenticator.
+- procédure d'ajout manuel pour Google Authenticator ;
+- export JSON portable contenant uniquement les enveloppes chiffrées et leur profil cryptographique ;
+- validation et déchiffrement locaux avant une restauration complète et transactionnelle.
+
+## Sauvegardes chiffrées
+
+Depuis un coffre déverrouillé, utilisez **Exporter le JSON chiffré** et conservez le fichier dans un
+emplacement sûr. Le fichier ne contient ni session, ni identité GitHub, ni secret en clair. Il reste
+cependant sensible aux attaques hors ligne contre sa phrase : protégez-le comme une sauvegarde de
+gestionnaire de mots de passe.
+
+La restauration exige le fichier, sa phrase secrète et une confirmation explicite. Le navigateur
+valide le format, vérifie la phrase et déchiffre toutes les fiches avant tout appel à l'API. Le
+serveur remplace ensuite le profil et les fiches dans une transaction unique. La phrase de la
+sauvegarde devient la phrase active. Une sauvegarde créée avant une rotation reste donc utilisable
+uniquement avec l'ancienne phrase.
 
 ## Démarrage rapide
 

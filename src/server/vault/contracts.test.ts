@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   createVaultRecordSchema,
   initializeVaultProfileSchema,
+  restoreVaultSchema,
   updateVaultRecordSchema,
 } from "@/server/vault/contracts";
 
@@ -45,5 +46,26 @@ describe("contrats du coffre", () => {
     expect(
       updateVaultRecordSchema.safeParse({ ...envelope, revision: 1, profileRevision: 1 }).success,
     ).toBe(true);
+  });
+
+  it("valide une restauration versionnée sans accepter d’identité", () => {
+    const backup = {
+      format: "codex-manager-vault-backup",
+      version: 1,
+      profile: {
+        kdfAlgorithm: "PBKDF2-SHA-256",
+        kdfIterations: 600_000,
+        kdfVersion: 1,
+        salt: "A".repeat(22),
+        verificationCiphertext: envelope.ciphertext,
+        verificationIv: envelope.iv,
+        schemaVersion: 1,
+      },
+      records: [],
+    };
+    expect(restoreVaultSchema.safeParse({ profileRevision: 2, backup }).success).toBe(true);
+    expect(
+      restoreVaultSchema.safeParse({ profileRevision: 2, backup, userId: "interdit" }).success,
+    ).toBe(false);
   });
 });
