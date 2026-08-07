@@ -33,3 +33,6 @@ branche de la Release PR si le check manque.
 Ne fermez ni ne fusionnez automatiquement cette PR. Sa fusion manuelle par le mainteneur est
 l'autorisation explicite de créer le tag et la GitHub Release. Ce n'est qu'après la publication de
 cette release que les validations du tag puis le déploiement Vercel peuvent démarrer.
+
+Le détail des reprises contrôlées et des vérifications après publication se trouve dans
+[docs/OPERATIONS.md](docs/OPERATIONS.md).

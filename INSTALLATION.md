@@ -16,6 +16,12 @@ npm ci
 cp .env.example .env.local
 ```
 
+Sous PowerShell, remplacez la dernière commande par :
+
+```powershell
+Copy-Item .env.example .env.local
+```
+
 Complétez `.env.local` sur votre machine. Ce fichier est ignoré par Git.
 
 ## Variables d'environnement
@@ -33,6 +39,10 @@ Complétez `.env.local` sur votre machine. Ce fichier est ignoré par Git.
 Ne réutilisez pas les mêmes secrets entre développement et production. Ne placez jamais la phrase
 du coffre dans une variable d'environnement : elle doit rester uniquement dans le navigateur.
 
+`AUTHORIZED_GITHUB_USER_ID` est un identifiant numérique public, pas un nom de compte. Une erreur
+sur cette valeur refuse la connexion attendue ou autorise une identité différente : vérifiez-la
+avant tout déploiement.
+
 ## OAuth GitHub
 
 Créez une application OAuth sous votre compte GitHub avec le callback local
@@ -42,6 +52,15 @@ callback principal par application : utilisez deux applications distinctes et en
 secrets directement dans `.env.local` et Vercel, jamais dans le dépôt ou une discussion.
 
 ## Base de données
+
+Pour une première installation locale, pointez `DATABASE_URL` vers une base dédiée puis appliquez
+les migrations versionnées :
+
+```bash
+npm run db:migrate
+```
+
+N'utilisez jamais cette commande localement avec l'URL Neon de production.
 
 Après une modification du schéma :
 
@@ -75,9 +94,24 @@ Les previews sont désactivées. Release Please appelle `.github/workflows/produ
 après avoir créé une GitHub Release réelle. Le workflow construit, migre, déploie sans alias,
 contrôle `/api/health`, puis promeut le déploiement validé.
 
+## Vérification locale
+
+1. lancez `npm run dev` ;
+2. ouvrez `http://localhost:3000` ;
+3. connectez-vous avec l'application OAuth de développement ;
+4. initialisez un coffre avec des données exclusivement factices ;
+5. vérifiez `http://localhost:3000/api/health` ;
+6. verrouillez puis déverrouillez le coffre avant de tester une mutation.
+
+Le point de santé ne vérifie pas PostgreSQL ou OAuth. Une validation complète exige le parcours de
+connexion et une lecture/écriture de coffre de test.
+
 ## Validation
 
 ```bash
 npm run check
 npm run audit:prod
 ```
+
+Les procédures de release, de reprise et de contrôle post-production figurent dans
+[docs/OPERATIONS.md](docs/OPERATIONS.md).

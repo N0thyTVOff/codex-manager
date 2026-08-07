@@ -36,6 +36,9 @@ chiffré vers une autre fiche invalide son authentification. Un IV de 96 bits es
 | altération d'une fiche | authentification AES-GCM et AAD                                                          |
 | fuite d'un jeton OAuth | chiffrement Better Auth activé                                                           |
 | PR de fork hostile     | permissions en lecture seule, aucun secret, `pull_request_target` métadonnées uniquement |
+| sauvegarde dérobée     | enveloppes chiffrées, phrase absente du fichier                                          |
+| conflit multi-onglet   | révisions globales et par fiche, transactions avec rollback                              |
+| presse-papiers exposé  | copie uniquement après action explicite, secrets masqués par défaut                      |
 
 ## Limites assumées
 
@@ -44,6 +47,9 @@ chiffré vers une autre fiche invalide son authentification. Un IV de 96 bits es
 - PBKDF2 est disponible nativement dans les navigateurs mais reste moins résistant qu'Argon2id aux
   attaques fortement parallélisées ; une migration de KDF devra être versionnée et testée ;
 - l'application ne vérifie ni ne renouvelle automatiquement les abonnements ChatGPT.
+- aucun verrouillage par minuterie d'inactivité n'est appliqué ;
+- une sauvegarde chiffrée permet une attaque hors ligne contre une phrase faible ;
+- le point `/api/health` confirme le processus et la version, pas PostgreSQL, OAuth ou Vercel.
 
 ## Dossiers
 
@@ -58,6 +64,31 @@ src/types/         contrats partagés
 drizzle/           migrations SQL versionnées
 scripts/           contrôles locaux de dépôt
 ```
+
+## Routes du coffre
+
+| Route                     | Méthodes        | Responsabilité                                          |
+| ------------------------- | --------------- | ------------------------------------------------------- |
+| `/api/vault/profile`      | `GET`, `POST`   | lire ou initialiser le profil cryptographique           |
+| `/api/vault/records`      | `GET`, `POST`   | lister ou créer des enveloppes                          |
+| `/api/vault/records/[id]` | `PUT`, `DELETE` | modifier ou supprimer une enveloppe propriétaire        |
+| `/api/vault/rekey`        | `PUT`           | remplacer atomiquement profil et enveloppes rechiffrées |
+| `/api/vault/restore`      | `PUT`           | remplacer atomiquement le coffre par une sauvegarde     |
+| `/api/health`             | `GET`           | publier l'état du processus et la version               |
+
+Toutes les routes du coffre déduisent le propriétaire de la session, limitent la taille des corps,
+valident un schéma strict, renvoient des erreurs génériques et utilisent `Cache-Control: no-store`.
+
+## Classification des données
+
+| Donnée                         | Navigateur déverrouillé | Serveur / PostgreSQL      | Export JSON |
+| ------------------------------ | ----------------------- | ------------------------- | ----------- |
+| phrase et clé dérivée          | mémoire uniquement      | jamais                    | jamais      |
+| login, mot de passe, TOTP      | clair en mémoire        | enveloppe AES-GCM         | enveloppe   |
+| dates, notes et état du quota  | clair en mémoire        | enveloppe AES-GCM         | enveloppe   |
+| UUID, IV et versions de schéma | visible                 | visible                   | visible     |
+| identité et session GitHub     | session                 | tables d'authentification | jamais      |
+| révisions de concurrence       | visible                 | visible                   | jamais      |
 
 ## Contrat de persistance du coffre
 

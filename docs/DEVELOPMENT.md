@@ -21,11 +21,26 @@ La CI démarre aussi un PostgreSQL jetable, applique toutes les migrations et ex
 le nom contient `test`, puis fournissez sa connexion dans `DATABASE_URL` et `TEST_DATABASE_URL`.
 Le test refuse volontairement toute adresse non locale afin d'écarter Neon et la production.
 
+| Commande                | Usage                                            |
+| ----------------------- | ------------------------------------------------ |
+| `npm run format:check`  | vérifier le formatage sans modifier les fichiers |
+| `npm run lint`          | appliquer les règles ESLint                      |
+| `npm run typecheck`     | vérifier TypeScript strict                       |
+| `npm run test:coverage` | exécuter les tests unitaires et les seuils       |
+| `npm run db:check`      | contrôler la cohérence des migrations Drizzle    |
+| `npm run check:yaml`    | analyser les workflows et formulaires GitHub     |
+| `npm run check:links`   | vérifier tous les liens Markdown locaux          |
+| `npm run build`         | construire l'application de production           |
+
 ## Données de test
 
 Utilisez uniquement les domaines réservés comme `example.test`, des mots de passe explicitement
 inactifs et des graines 2FA factices. Une capture, un log ou une fixture ne doit jamais contenir de
 donnée issue d'un compte réel.
+
+Les captures documentaires sont stockées dans `docs/images/`. Elles doivent être visuellement
+contrôlées, dépourvues de métadonnées sensibles et accompagnées d'un texte alternatif. Une maquette
+générée doit être présentée comme illustrative si elle ne correspond pas pixel par pixel au produit.
 
 ## Schéma
 
@@ -80,3 +95,5 @@ Les titres suivent Conventional Commits et leur sujet commence par une minuscule
 `BREAKING CHANGE:`.
 
 La fusion est uniquement en squash. Le titre de la PR devient le commit de `main`.
+
+Le runbook complet de Release Please et Vercel se trouve dans [OPERATIONS.md](OPERATIONS.md).
