@@ -69,10 +69,10 @@ describe("sauvegardes chiffrées", () => {
       { id, revision: 1, ...envelope },
     ]);
     const first = backup.records[0]!;
-    const replacement = first.ciphertext.endsWith("A") ? "B" : "A";
+    const replacement = first.ciphertext.startsWith("A") ? "B" : "A";
     const altered = {
       ...backup,
-      records: [{ ...first, ciphertext: `${first.ciphertext.slice(0, -1)}${replacement}` }],
+      records: [{ ...first, ciphertext: `${replacement}${first.ciphertext.slice(1)}` }],
     };
 
     await expect(
