@@ -9,15 +9,18 @@
 [![Licence AGPL-3.0](https://img.shields.io/github/license/N0thyTVOff/codex-manager)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/N0thyTVOff/codex-manager)](https://github.com/N0thyTVOff/codex-manager/issues)
 
+[Utilisation](docs/USER_GUIDE.md) · [Installation](INSTALLATION.md) ·
+[Architecture](docs/ARCHITECTURE.md) · [Exploitation](docs/OPERATIONS.md) ·
+[Récupération](docs/RECOVERY.md) · [Sécurité](SECURITY.md)
+
 </div>
 
 ## Pourquoi ce projet ?
 
-Codex Manager remplace un bloc-notes contenant des informations sensibles par une application
-structurée, personnelle et auditable. La version publiée `0.1.0` fournit le socle technique. Le
-développement de la version groupée `0.2.0` ajoute progressivement la persistance chiffrée,
-l'initialisation, le déverrouillage local, la rotation atomique et la gestion du cycle de vie des
-comptes.
+Codex Manager remplace un bloc-notes contenant des informations sensibles par une application web
+responsive, structurée et auditable. Le coffre fonctionnel couvre la persistance chiffrée,
+l'initialisation, le déverrouillage local, la rotation de phrase, la gestion des échéances et quotas,
+les actions rapides et les sauvegardes portables.
 
 > [!IMPORTANT]
 > Le projet ne partage pas de comptes et n'automatise pas la connexion à ChatGPT. Chaque compte
@@ -84,8 +87,12 @@ Le guide détaillé se trouve dans [INSTALLATION.md](INSTALLATION.md).
 
 ## Captures
 
-Les captures du coffre seront ajoutées dans [docs/images/](docs/images/README.md) lorsque les écrans
-de gestion seront réellement développés. Elles utiliseront exclusivement des données factices.
+Ces aperçus documentaires utilisent exclusivement des données factices et des secrets masqués. Ils
+illustrent les parcours sans constituer une référence pixel par pixel de la version déployée.
+
+![Aperçu factice du coffre déverrouillé avec deux comptes de démonstration et l'export chiffré](docs/images/coffre-factice.webp)
+
+![Aperçu factice de l'écran de déverrouillage local sans donnée utilisateur](docs/images/deverrouillage-factice.webp)
 
 ## Commandes utiles
 
@@ -110,7 +117,9 @@ Navigateur ── GitHub OAuth ──► application Next.js sur Vercel
 
 La description complète et les décisions de sécurité figurent dans
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Le fonctionnement quotidien est documenté dans
-[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md). Consultez également le
+[guide utilisateur](docs/USER_GUIDE.md), le [runbook de production](docs/OPERATIONS.md) et le
+[guide de récupération](docs/RECOVERY.md).
 
 ## Contributions
 
