@@ -99,3 +99,18 @@ défaut. Les ouvertures de ChatGPT et de 2FA.live utilisent une URL constante da
 isolé avec `noopener` et `noreferrer`. En particulier, la graine TOTP n'est jamais ajoutée à une URL,
 envoyée à l'API ou transmise automatiquement au service tiers. Google Authenticator suit une
 procédure de saisie manuelle.
+
+## Sauvegarde et restauration
+
+Le format `codex-manager-vault-backup` version 1 contient le profil cryptographique nécessaire à la
+dérivation de clé et la liste des enveloppes chiffrées. Les révisions serveur, sessions et attributs
+d'identité n'en font pas partie. Les charges utiles ne sont pas rechiffrées à l'export : une
+sauvegarde reste ainsi liée à la phrase et au sel actifs lors de sa création, y compris après une
+rotation ultérieure du coffre en ligne.
+
+À l'import, le navigateur applique un schéma strict, limite la taille et le nombre de fiches,
+vérifie l'enveloppe sentinelle puis déchiffre et valide chaque `VaultAccountV1`. L'API n'est appelée
+qu'après cette validation locale et une confirmation explicite. Le serveur déduit le propriétaire
+de la session, verrouille la révision courante, supprime les anciennes fiches, insère les nouvelles
+et remplace le profil dans une transaction PostgreSQL unique. Toute révision inattendue, collision
+d'UUID ou erreur provoque un rollback complet.

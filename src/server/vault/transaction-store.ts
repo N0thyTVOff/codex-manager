@@ -3,6 +3,7 @@ import type { Pool, PoolClient, QueryResultRow } from "pg";
 import type {
   CreateVaultRecordInput,
   DeleteVaultRecordInput,
+  RestoreVaultInput,
   RotateVaultInput,
   UpdateVaultRecordInput,
 } from "@/server/vault/contracts";
@@ -189,6 +190,69 @@ export async function rotateVaultTransaction(
     }
 
     const profile = input.profile;
+    const updatedProfile = await client.query<{ revision: number }>(
+      `UPDATE vault_profile
+       SET kdf_algorithm = $1, kdf_iterations = $2, kdf_version = $3, salt = $4,
+           verification_ciphertext = $5, verification_iv = $6, schema_version = $7,
+           revision = revision + 1, updated_at = now()
+       WHERE user_id = $8 AND revision = $9
+       RETURNING revision`,
+      [
+        profile.kdfAlgorithm,
+        profile.kdfIterations,
+        profile.kdfVersion,
+        profile.salt,
+        profile.verificationCiphertext,
+        profile.verificationIv,
+        profile.schemaVersion,
+        userId,
+        profileRevision,
+      ],
+    );
+    const nextRevision = updatedProfile.rows[0]?.revision;
+    return nextRevision
+      ? commit({ status: "ok", value: { profileRevision: nextRevision } })
+      : rollback({ status: "conflict" });
+  });
+}
+
+export async function replaceVaultTransaction(
+  pool: Pool,
+  userId: string,
+  input: RestoreVaultInput,
+): Promise<VaultMutationResult<{ profileRevision: number }>> {
+  return runTransaction<VaultMutationResult<{ profileRevision: number }>>(pool, async (client) => {
+    const profileRevision = await lockProfile(client, userId);
+    if (profileRevision === null) return rollback({ status: "not_found" });
+    if (profileRevision !== input.profileRevision) return rollback({ status: "conflict" });
+
+    await client.query("DELETE FROM vault_record WHERE user_id = $1", [userId]);
+
+    if (input.backup.records.length > 0) {
+      const inserted = await client.query(
+        `INSERT INTO vault_record (id, user_id, ciphertext, iv, schema_version)
+         SELECT incoming.id, $2, incoming.ciphertext, incoming.iv, incoming.schema_version
+         FROM jsonb_to_recordset($1::jsonb)
+           AS incoming(id uuid, ciphertext text, iv varchar, schema_version integer)
+         ON CONFLICT (id) DO NOTHING`,
+        [
+          JSON.stringify(
+            input.backup.records.map((record) => ({
+              id: record.id,
+              ciphertext: record.ciphertext,
+              iv: record.iv,
+              schema_version: record.schemaVersion,
+            })),
+          ),
+          userId,
+        ],
+      );
+      if (inserted.rowCount !== input.backup.records.length) {
+        return rollback({ status: "conflict" });
+      }
+    }
+
+    const profile = input.backup.profile;
     const updatedProfile = await client.query<{ revision: number }>(
       `UPDATE vault_profile
        SET kdf_algorithm = $1, kdf_iterations = $2, kdf_version = $3, salt = $4,

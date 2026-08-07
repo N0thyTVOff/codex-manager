@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 
 import { AccountDashboard } from "@/components/account-dashboard";
+import { VaultBackupPanel } from "@/components/vault-backup-panel";
 import { authClient } from "@/lib/auth/client";
 import type { DecryptedVaultAccount } from "@/lib/vault/accounts";
 import {
@@ -154,17 +155,29 @@ export function VaultManager() {
         </div>
       </section>
       {profile && vaultKey ? (
-        <AccountDashboard
-          profileRevision={profile.revision}
-          vaultKey={vaultKey}
-          records={records}
-          accounts={accounts}
-          onChanged={(profileRevision, nextRecords, nextAccounts) => {
-            setProfile({ ...profile, revision: profileRevision });
-            setRecords(nextRecords);
-            setAccounts(nextAccounts);
-          }}
-        />
+        <>
+          <AccountDashboard
+            profileRevision={profile.revision}
+            vaultKey={vaultKey}
+            records={records}
+            accounts={accounts}
+            onChanged={(profileRevision, nextRecords, nextAccounts) => {
+              setProfile({ ...profile, revision: profileRevision });
+              setRecords(nextRecords);
+              setAccounts(nextAccounts);
+            }}
+          />
+          <VaultBackupPanel
+            profile={profile}
+            records={records}
+            onRestored={(nextProfile, nextRecords, nextAccounts, key) => {
+              setProfile(nextProfile);
+              setRecords(nextRecords);
+              setAccounts(nextAccounts);
+              setVaultKey(key);
+            }}
+          />
+        </>
       ) : null}
       {rotationOpen && profile && vaultKey ? (
         <RotateVault

@@ -6,11 +6,12 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import type { Database } from "@/db/client";
 import * as schema from "@/db/schema";
-import { user } from "@/db/schema";
+import { user, vaultRecord } from "@/db/schema";
 import { initializeVaultProfile, listVaultRecords, readVaultProfile } from "@/server/vault/store";
 import {
   createVaultRecordTransaction,
   deleteVaultRecordTransaction,
+  replaceVaultTransaction,
   rotateVaultTransaction,
   updateVaultRecordTransaction,
 } from "@/server/vault/transaction-store";
@@ -144,5 +145,61 @@ run("persistance PostgreSQL du coffre", () => {
         profileRevision: 4,
       }),
     ).toEqual({ status: "ok", value: { id: recordId, profileRevision: 5 } });
+
+    const obsoleteId = randomUUID();
+    expect(
+      (
+        await createVaultRecordTransaction(pool, ownerId, {
+          id: obsoleteId,
+          ...envelope,
+          profileRevision: 5,
+        })
+      ).status,
+    ).toBe("ok");
+    const restoredId = randomUUID();
+    const backup = {
+      format: "codex-manager-vault-backup" as const,
+      version: 1 as const,
+      profile: {
+        ...profileInput,
+        salt: "D".repeat(22),
+      },
+      records: [{ id: restoredId, ...envelope, ciphertext: "D".repeat(22) }],
+    };
+    expect(await replaceVaultTransaction(pool, ownerId, { profileRevision: 6, backup })).toEqual({
+      status: "ok",
+      value: { profileRevision: 7 },
+    });
+    expect(await listVaultRecords(database, ownerId)).toEqual([
+      expect.objectContaining({ id: restoredId, ciphertext: "D".repeat(22), revision: 1 }),
+    ]);
+    expect((await readVaultProfile(database, ownerId))?.salt).toBe("D".repeat(22));
+
+    expect(await replaceVaultTransaction(pool, ownerId, { profileRevision: 6, backup })).toEqual({
+      status: "conflict",
+    });
+    expect(await listVaultRecords(database, ownerId)).toEqual([
+      expect.objectContaining({ id: restoredId, ciphertext: "D".repeat(22) }),
+    ]);
+
+    const foreignId = randomUUID();
+    await database.insert(vaultRecord).values({
+      id: foreignId,
+      userId: otherId,
+      ...envelope,
+    });
+    const collidingBackup = {
+      ...backup,
+      records: [{ id: foreignId, ...envelope, ciphertext: "E".repeat(22) }],
+    };
+    expect(
+      await replaceVaultTransaction(pool, ownerId, {
+        profileRevision: 7,
+        backup: collidingBackup,
+      }),
+    ).toEqual({ status: "conflict" });
+    expect(await listVaultRecords(database, ownerId)).toEqual([
+      expect.objectContaining({ id: restoredId, ciphertext: "D".repeat(22) }),
+    ]);
   });
 });
