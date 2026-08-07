@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/N0thyTVOff/codex-manager/compare/v0.2.0...v0.3.0) (2026-08-07)
+
+
+### Fonctionnalités
+
+* **vault:** ajouter les sauvegardes chiffrées ([#26](https://github.com/N0thyTVOff/codex-manager/issues/26)) ([ddbc7e7](https://github.com/N0thyTVOff/codex-manager/commit/ddbc7e7e7def1786d157f1997dcfb5310812782a)), closes [#8](https://github.com/N0thyTVOff/codex-manager/issues/8)
+
+
+### Documentation
+
+* finaliser les guides du coffre ([#28](https://github.com/N0thyTVOff/codex-manager/issues/28)) ([761ba72](https://github.com/N0thyTVOff/codex-manager/commit/761ba725e323023cfa88a29036dd8503a3d8997a)), closes [#9](https://github.com/N0thyTVOff/codex-manager/issues/9)
+
 ## [0.2.0](https://github.com/N0thyTVOff/codex-manager/compare/v0.1.0...v0.2.0) (2026-08-05)
 
 
